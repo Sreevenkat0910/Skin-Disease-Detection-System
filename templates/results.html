@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Results - Skin Analysis System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 50%, #f0f9ff 100%);
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        @media print {
+            body {
+                background: white !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    
+    <!-- Navigation Bar -->
+    <nav class="bg-gradient-to-r from-blue-500 to-cyan-500 shadow-lg no-print">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="#" class="text-2xl font-bold text-white flex items-center gap-2">
+                    <i class="bi bi-heart-pulse"></i>
+                    Skin Analysis System
+                </a>
+                <div class="flex items-center gap-3">
+                    <a href="/detection" class="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-all">
+                        <i class="bi bi-plus-circle mr-1"></i> New Analysis
+                    </a>
+                    <a href="/logout" class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg font-semibold hover:bg-opacity-30 transition-all">
+                        <i class="bi bi-box-arrow-right mr-1"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 py-8">
+        
+        <!-- Page Header -->
+        <div class="text-center mb-8 fade-in-up">
+            <div class="inline-block p-4 bg-white rounded-full shadow-lg mb-4">
+                <i class="bi bi-clipboard2-check text-5xl text-green-600"></i>
+            </div>
+            <h2 class="text-5xl font-bold text-gray-800 mb-2">Analysis Results</h2>
+            <p class="text-gray-600 text-lg" id="analysisTypeLabel">Your comprehensive skin analysis</p>
+        </div>
+
+        <!-- Main Results Card -->
+        <div class="max-w-4xl mx-auto mb-8">
+            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden fade-in-up">
+                <div class="bg-gradient-to-r from-blue-500 to-cyan-500 p-6">
+                    <h5 class="text-2xl font-bold text-white flex items-center gap-3">
+                        <i class="bi bi-clipboard-data-fill"></i>
+                        Detection Results
+                    </h5>
+                </div>
+                <div class="p-8">
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <!-- Image Preview -->
+                        <div class="text-center">
+                            <h6 class="text-gray-700 font-bold mb-3 text-lg">Analyzed Image</h6>
+                            <img id="resultImage" src="" alt="Analyzed Image" class="mx-auto rounded-2xl shadow-lg" style="max-height: 400px; width: 100%; object-fit: contain;">
+                        </div>
+                        
+                        <!-- Results Info -->
+                        <div>
+                            <!-- Detected Condition -->
+                            <div class="mb-6">
+                                <h6 class="text-gray-600 font-semibold mb-2 text-lg">Detected Condition:</h6>
+                                <h4 class="text-3xl font-bold text-blue-600 mb-2" id="conditionName"></h4>
+                                <p class="text-sm text-gray-600" id="conditionDescription"></p>
+                            </div>
+                            
+                            <!-- Confidence Level -->
+                            <div class="mb-6">
+                                <h6 class="text-gray-600 font-semibold mb-3 text-lg">Confidence Level:</h6>
+                                <div class="relative">
+                                    <div class="overflow-hidden h-10 text-sm flex rounded-xl bg-gray-200">
+                                        <div class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-green-400 to-green-600 transition-all duration-1000" role="progressbar" id="confidenceBar" style="width: 0%;">
+                                        </div>
+                                    </div>
+                                    <div class="text-center mt-3">
+                                        <span class="text-3xl font-bold text-green-600" id="confidenceText"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cancer Risk Assessment (Only for Skin Cancer) -->
+                            <div id="cancerRiskSection" style="display: none;">
+                                <div class="p-5 rounded-2xl border-2 mb-6" id="cancerRiskCard">
+                                    <h6 class="font-bold mb-3 text-lg flex items-center gap-2">
+                                        <i class="bi bi-shield-fill-exclamation"></i>
+                                        Cancer Risk Assessment
+                                    </h6>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-lg font-semibold" id="cancerStatus"></span>
+                                        <span class="px-4 py-2 rounded-lg font-bold text-sm" id="riskBadge"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- All Predictions -->
+                    <div class="mt-8">
+                        <h6 class="text-gray-700 font-bold mb-4 text-lg">All Detected Conditions:</h6>
+                        <div id="allPredictions" class="space-y-3">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI-Powered Recommendations Card -->
+        <div class="max-w-4xl mx-auto mb-8">
+            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden fade-in-up">
+                <div class="bg-gradient-to-r from-purple-500 to-pink-500 p-6">
+                    <h5 class="text-2xl font-bold text-white flex items-center gap-3">
+                        <i class="bi bi-lightbulb-fill"></i>
+                        AI-Powered Recommendations
+                    </h5>
+                </div>
+                <div class="p-8">
+                    <!-- Loading State -->
+                    <div id="loadingRecommendations" class="text-center py-12">
+                        <div class="inline-block animate-spin rounded-full h-16 w-16 border-b-4 border-purple-500 mb-4"></div>
+                        <p class="text-gray-600 text-lg font-semibold">Generating personalized recommendations...</p>
+                    </div>
+                    
+                    <!-- Recommendations Content -->
+                    <div id="recommendations" style="display: none;">
+                        <div id="recommendationsContent" class="prose prose-lg max-w-none text-gray-700 leading-relaxed"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Medical Disclaimer Card -->
+        <div class="max-w-4xl mx-auto mb-8">
+            <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-4 border-yellow-300 rounded-3xl p-8 shadow-lg fade-in-up">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0">
+                        <i class="bi bi-exclamation-triangle-fill text-5xl text-yellow-600"></i>
+                    </div>
+                    <div>
+                        <h6 class="text-2xl font-bold text-yellow-800 mb-3">Important Medical Disclaimer</h6>
+                        <p class="text-yellow-800 mb-3">
+                            This analysis is for educational and informational purposes only. It should not be used as a substitute for professional medical advice, diagnosis, or treatment.
+                        </p>
+                        <p class="text-yellow-800" id="disclaimerText">
+                            If you are experiencing skin issues, please consult with qualified healthcare professionals including dermatologists for proper diagnosis and treatment.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="max-w-4xl mx-auto text-center space-x-4 no-print fade-in-up">
+            <a href="/detection" class="inline-block bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold px-8 py-4 rounded-xl hover:shadow-lg transition-all">
+                <i class="bi bi-plus-circle mr-2"></i>
+                Perform New Analysis
+            </a>
+            <button onclick="window.print()" class="inline-block bg-gradient-to-r from-gray-600 to-gray-700 text-white font-bold px-8 py-4 rounded-xl hover:shadow-lg transition-all">
+                <i class="bi bi-download mr-2"></i>
+                Download Results
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const results = JSON.parse(sessionStorage.getItem('analysisResults') || '{}');
+            
+            if (!results.success) {
+                window.location.href = '/detection';
+                return;
+            }
+
+            displayResults(results);
+        });
+
+        function displayResults(results) {
+            // Display image
+            document.getElementById('resultImage').src = '/static/uploads/' + results.image_path;
+            
+            // Display condition name
+            document.getElementById('conditionName').textContent = results.condition_name || results.skin_condition;
+            
+            // Display description if available (for skin cancer)
+            if (results.description) {
+                document.getElementById('conditionDescription').textContent = results.description;
+            }
+            
+            // Display confidence
+            const confidence = results.confidence || results.skin_confidence;
+            document.getElementById('confidenceText').textContent = confidence.toFixed(2) + '%';
+            
+            // Animate confidence bar
+            setTimeout(() => {
+                const confidenceBar = document.getElementById('confidenceBar');
+                confidenceBar.style.width = confidence + '%';
+                
+                // Change color based on confidence
+                if (confidence >= 80) {
+                    confidenceBar.className = confidenceBar.className.replace('from-green-400 to-green-600', 'from-green-400 to-green-600');
+                } else if (confidence >= 60) {
+                    confidenceBar.className = confidenceBar.className.replace('from-green-400 to-green-600', 'from-yellow-400 to-yellow-600');
+                    document.getElementById('confidenceText').className = 'text-3xl font-bold text-yellow-600';
+                } else {
+                    confidenceBar.className = confidenceBar.className.replace('from-green-400 to-green-600', 'from-red-400 to-red-600');
+                    document.getElementById('confidenceText').className = 'text-3xl font-bold text-red-600';
+                }
+            }, 300);
+            
+            // Show cancer risk if this is skin cancer detection
+            if (results.detection_type === 'cancer' && results.is_cancerous !== undefined) {
+                document.getElementById('cancerRiskSection').style.display = 'block';
+                
+                const cancerRiskCard = document.getElementById('cancerRiskCard');
+                const cancerStatus = document.getElementById('cancerStatus');
+                const riskBadge = document.getElementById('riskBadge');
+                
+                if (results.is_cancerous) {
+                    cancerRiskCard.className = 'p-5 rounded-2xl border-2 mb-6 bg-red-50 border-red-300';
+                    cancerStatus.textContent = 'CANCEROUS';
+                    cancerStatus.className = 'text-lg font-semibold text-red-700';
+                    riskBadge.textContent = 'HIGH RISK';
+                    riskBadge.className = 'px-4 py-2 rounded-lg font-bold text-sm bg-red-600 text-white';
+                    
+                    // Update disclaimer
+                    document.getElementById('disclaimerText').innerHTML = '<strong>URGENT:</strong> This analysis indicates a potentially cancerous condition. Please consult a dermatologist or oncologist immediately for professional evaluation and treatment.';
+                } else {
+                    cancerRiskCard.className = 'p-5 rounded-2xl border-2 mb-6 bg-green-50 border-green-300';
+                    cancerStatus.textContent = 'NON-CANCEROUS';
+                    cancerStatus.className = 'text-lg font-semibold text-green-700';
+                    riskBadge.textContent = 'LOW RISK';
+                    riskBadge.className = 'px-4 py-2 rounded-lg font-bold text-sm bg-green-600 text-white';
+                }
+            }
+            
+            // Update analysis type label
+            if (results.detection_type === 'cancer') {
+                document.getElementById('analysisTypeLabel').textContent = 'Your skin cancer analysis';
+            } else {
+                document.getElementById('analysisTypeLabel').textContent = 'Your skin disease analysis';
+            }
+            
+            // Display all predictions
+            displayAllPredictions(results.all_predictions);
+            
+            // Display recommendations
+            setTimeout(() => {
+                displayRecommendations(results.recommendations);
+            }, 2000);
+        }
+
+        function displayAllPredictions(predictions) {
+            const container = document.getElementById('allPredictions');
+            container.innerHTML = '';
+            
+            if (!predictions || predictions.length === 0) return;
+            
+            predictions.forEach((prediction, index) => {
+                const predictionDiv = document.createElement('div');
+                predictionDiv.className = 'flex justify-between items-center p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all';
+                
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'font-semibold text-gray-800';
+                labelDiv.textContent = `${index + 1}. ${prediction.class}`;
+                
+                const confidenceDiv = document.createElement('div');
+                confidenceDiv.className = 'flex items-center gap-3';
+                
+                const confidenceBar = document.createElement('div');
+                confidenceBar.className = 'w-32 h-3 bg-gray-200 rounded-full overflow-hidden';
+                
+                const confidenceFill = document.createElement('div');
+                confidenceFill.className = 'h-full bg-gradient-to-r from-blue-400 to-cyan-500 transition-all duration-500';
+                confidenceFill.style.width = '0%';
+                
+                confidenceBar.appendChild(confidenceFill);
+                
+                const confidenceText = document.createElement('span');
+                confidenceText.className = 'font-bold text-gray-700 text-sm';
+                confidenceText.textContent = `${prediction.confidence.toFixed(2)}%`;
+                
+                confidenceDiv.appendChild(confidenceBar);
+                confidenceDiv.appendChild(confidenceText);
+                
+                predictionDiv.appendChild(labelDiv);
+                predictionDiv.appendChild(confidenceDiv);
+                
+                container.appendChild(predictionDiv);
+                
+                // Animate the confidence bar
+                setTimeout(() => {
+                    confidenceFill.style.width = prediction.confidence + '%';
+                }, 300 + (index * 100));
+            });
+        }
+
+        function displayRecommendations(recommendations) {
+            document.getElementById('loadingRecommendations').style.display = 'none';
+            document.getElementById('recommendations').style.display = 'block';
+            
+            const formattedRecommendations = formatMarkdown(recommendations);
+            document.getElementById('recommendationsContent').innerHTML = formattedRecommendations;
+        }
+
+        function formatMarkdown(text) {
+            // Convert headers with Tailwind styling
+            text = text.replace(/^### (.*$)/gim, '<h3 class="text-xl font-bold text-gray-800 mt-6 mb-3">$1</h3>');
+            text = text.replace(/^## (.*$)/gim, '<h2 class="text-2xl font-bold text-gray-800 mt-6 mb-4">$1</h2>');
+            text = text.replace(/^# (.*$)/gim, '<h1 class="text-3xl font-bold text-gray-800 mt-6 mb-4">$1</h1>');
+            
+            // Convert bold and italic
+            text = text.replace(/\*\*\*(.+?)\*\*\*/g, '<strong class="font-bold text-gray-900"><em>$1</em></strong>');
+            text = text.replace(/\*\*(.+?)\*\*/g, '<strong class="font-bold text-gray-900">$1</strong>');
+            text = text.replace(/\*(.+?)\*/g, '<em class="italic">$1</em>');
+            
+            // Convert lists
+            text = text.replace(/^\* (.+)$/gim, '<li class="ml-6 mb-2">$1</li>');
+            text = text.replace(/^- (.+)$/gim, '<li class="ml-6 mb-2">$1</li>');
+            text = text.replace(/^(\d+)\. (.+)$/gim, '<li class="ml-6 mb-2">$2</li>');
+            
+            // Wrap lists in ul tags with styling
+            text = text.replace(/(<li.*?<\/li>)/s, '<ul class="list-disc list-inside space-y-2 my-4">$1</ul>');
+            
+            // Convert line breaks to paragraphs with styling
+            text = text.replace(/\n\n/g, '</p><p class="mb-4 text-gray-700 leading-relaxed">');
+            text = '<p class="mb-4 text-gray-700 leading-relaxed">' + text + '</p>';
+            
+            return text;
+        }
+    </script>
+</body>
+</html>

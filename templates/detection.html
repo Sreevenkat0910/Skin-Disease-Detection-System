@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detection - Skin Analysis System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #e0f2fe 0%, #bfdbfe 50%, #f0f9ff 100%);
+        }
+        .detection-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .detection-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .detection-card.selected {
+            border: 3px solid #3b82f6;
+            background: linear-gradient(to bottom right, #dbeafe, #f0f9ff);
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    
+    <!-- Navigation Bar -->
+    <nav class="bg-gradient-to-r from-blue-500 to-cyan-500 shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="#" class="text-2xl font-bold text-white flex items-center gap-2">
+                    <i class="bi bi-heart-pulse"></i>
+                    Skin Analysis System
+                </a>
+                <div class="flex items-center gap-4">
+                    <span class="text-white font-semibold">Welcome, {{ username }}</span>
+                    <a href="/logout" class="bg-white text-blue-600 px-4 py-2 rounded-lg font-semibold hover:bg-blue-50 transition-all">
+                        <i class="bi bi-box-arrow-right mr-1"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 py-8">
+        
+        <!-- Step 1: Choose Detection Type -->
+        <div id="selectionStep" class="max-w-5xl mx-auto">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold text-gray-800 mb-3">Choose Analysis Type</h2>
+                <p class="text-gray-600 text-lg">Select the type of skin analysis you want to perform</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 mb-8">
+                <!-- Skin Disease Card -->
+                <div class="detection-card bg-white rounded-3xl shadow-xl p-8" id="skinDiseaseCard" onclick="selectDetectionType('disease')">
+                    <div class="text-center">
+                        <div class="inline-block p-4 bg-blue-100 rounded-full mb-4">
+                            <i class="bi bi-bandaid-fill text-6xl text-blue-600"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-3">Skin Disease Detection</h3>
+                        <p class="text-gray-600 mb-4">Detect common skin conditions like Acne, Eczema, Rosacea, and more</p>
+                        
+                        <div class="bg-blue-50 rounded-xl p-4 text-left">
+                            <p class="font-semibold text-blue-800 mb-2">Detects:</p>
+                            <ul class="text-sm text-blue-700 space-y-1">
+                                <li>✓ Acne</li>
+                                <li>✓ Eczema</li>
+                                <li>✓ Rosacea</li>
+                                <li>✓ Carcinoma</li>
+                                <li>✓ Keratosis</li>
+                                <li>✓ Milia</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skin Cancer Card -->
+                <div class="detection-card bg-white rounded-3xl shadow-xl p-8" id="skinCancerCard" onclick="selectDetectionType('cancer')">
+                    <div class="text-center">
+                        <div class="inline-block p-4 bg-red-100 rounded-full mb-4">
+                            <i class="bi bi-shield-fill-exclamation text-6xl text-red-600"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-3">Skin Cancer Detection</h3>
+                        <p class="text-gray-600 mb-4">Advanced detection for potentially cancerous and non-cancerous lesions</p>
+                        
+                        <div class="bg-red-50 rounded-xl p-4 text-left">
+                            <p class="font-semibold text-red-800 mb-2">Detects:</p>
+                            <ul class="text-sm text-red-700 space-y-1">
+                                <li>✓ Melanoma (MEL)</li>
+                                <li>✓ Basal Cell Carcinoma (BCC)</li>
+                                <li>✓ Squamous Cell Carcinoma (SCC)</li>
+                                <li>✓ Actinic Keratosis (ACK)</li>
+                                <li>✓ Nevus (NEV)</li>
+                                <li>✓ Seborrheic Keratosis (SEK)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Upload Image -->
+        <div id="uploadStep" class="max-w-4xl mx-auto" style="display: none;">
+            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+                <div class="p-8 md:p-12">
+                    <div class="flex items-center justify-between mb-6">
+                        <button onclick="goBack()" class="text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-2">
+                            <i class="bi bi-arrow-left"></i> Back to Selection
+                        </button>
+                        <span class="px-4 py-2 bg-blue-100 text-blue-800 rounded-full font-semibold" id="selectedTypeLabel"></span>
+                    </div>
+
+                    <div class="text-center mb-8">
+                        <div class="inline-block p-4 bg-blue-100 rounded-full mb-4">
+                            <i class="bi bi-cloud-upload text-5xl text-blue-600"></i>
+                        </div>
+                        <h3 class="text-4xl font-bold text-gray-800 mb-3">Upload Image</h3>
+                        <p class="text-gray-600 text-lg" id="uploadDescription">Upload a clear photo of the affected skin area</p>
+                    </div>
+
+                    <!-- Upload Area -->
+                    <div class="upload-area text-center p-12 border-4 border-dashed border-gray-300 rounded-2xl hover:border-blue-400 transition-all cursor-pointer bg-gray-50 hover:bg-blue-50" id="uploadArea">
+                        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                        <div id="uploadPrompt" style="pointer-events: none;">
+                            <i class="bi bi-cloud-arrow-up text-7xl text-blue-500 mb-4"></i>
+                            <h5 class="text-2xl font-bold text-gray-700 mb-2">Click to upload or drag and drop</h5>
+                            <p class="text-gray-500">PNG, JPG or JPEG (MAX. 16MB)</p>
+                        </div>
+                        <div id="imagePreview" style="display: none; pointer-events: none;">
+                            <img id="previewImg" src="" alt="Preview" class="mx-auto rounded-2xl shadow-lg" style="max-height: 400px;">
+                            <button class="mt-6 px-6 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-all" id="removeImage" style="pointer-events: all;">
+                                <i class="bi bi-trash mr-2"></i> Remove Image
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tips -->
+                    <div class="mt-8 p-6 bg-blue-50 border-2 border-blue-200 rounded-2xl">
+                        <div class="flex items-start gap-3">
+                            <i class="bi bi-lightbulb-fill text-3xl text-blue-600 mt-1"></i>
+                            <div>
+                                <h6 class="text-blue-800 font-bold text-lg mb-3">Tips for best results:</h6>
+                                <ul class="space-y-2 text-blue-700">
+                                    <li class="flex items-center gap-2">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        Use good lighting
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        Capture a clear, focused image
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        Include the entire affected area
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                        Avoid shadows or blurry photos
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Analyze Button -->
+                    <button class="w-full mt-8 bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold py-4 rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed" id="analyzeBtn" disabled>
+                        <span class="spinner-border spinner-border-sm me-2" role="status" id="spinner" style="display: none;"></span>
+                        <i class="bi bi-bar-chart-fill mr-2"></i>
+                        Analyze Image
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedType = null;
+        let uploadedImage = null;
+
+        function selectDetectionType(type) {
+            selectedType = type;
+            
+            // Update selected card styling
+            document.getElementById('skinDiseaseCard').classList.remove('selected');
+            document.getElementById('skinCancerCard').classList.remove('selected');
+            
+            if (type === 'disease') {
+                document.getElementById('skinDiseaseCard').classList.add('selected');
+            } else {
+                document.getElementById('skinCancerCard').classList.add('selected');
+            }
+            
+            // Wait a bit for visual feedback then show upload
+            setTimeout(() => {
+                showUploadStep(type);
+            }, 300);
+        }
+
+        function showUploadStep(type) {
+            document.getElementById('selectionStep').style.display = 'none';
+            document.getElementById('uploadStep').style.display = 'block';
+            
+            // Update labels based on type
+            if (type === 'disease') {
+                document.getElementById('selectedTypeLabel').textContent = 'Skin Disease Detection';
+                document.getElementById('uploadDescription').textContent = 'Upload a clear photo of the affected skin area';
+            } else {
+                document.getElementById('selectedTypeLabel').textContent = 'Skin Cancer Detection';
+                document.getElementById('uploadDescription').textContent = 'Upload a clear photo of the skin lesion';
+            }
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goBack() {
+            document.getElementById('uploadStep').style.display = 'none';
+            document.getElementById('selectionStep').style.display = 'block';
+            resetImageUpload();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Upload functionality
+        const uploadArea = document.getElementById('uploadArea');
+        const imageInput = document.getElementById('imageInput');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const previewImg = document.getElementById('previewImg');
+        const imagePreview = document.getElementById('imagePreview');
+        const uploadPrompt = document.getElementById('uploadPrompt');
+        const removeImageBtn = document.getElementById('removeImage');
+        const spinner = document.getElementById('spinner');
+
+        uploadArea.addEventListener('click', function() {
+            imageInput.click();
+        });
+
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('border-blue-500', 'bg-blue-100');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('border-blue-500', 'bg-blue-100');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('border-blue-500', 'bg-blue-100');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleImageSelect(files[0]);
+            }
+        });
+
+        imageInput.addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                handleImageSelect(e.target.files[0]);
+            }
+        });
+
+        removeImageBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            resetImageUpload();
+        });
+
+        analyzeBtn.addEventListener('click', function() {
+            if (uploadedImage && selectedType) {
+                analyzeImage();
+            }
+        });
+
+        function handleImageSelect(file) {
+            if (!file.type.match('image.*')) {
+                alert('Please select a valid image file');
+                return;
+            }
+
+            if (file.size > 16 * 1024 * 1024) {
+                alert('File size must be less than 16MB');
+                return;
+            }
+
+            uploadedImage = file;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                uploadPrompt.style.display = 'none';
+                imagePreview.style.display = 'block';
+                analyzeBtn.disabled = false;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetImageUpload() {
+            uploadedImage = null;
+            imageInput.value = '';
+            uploadPrompt.style.display = 'block';
+            imagePreview.style.display = 'none';
+            analyzeBtn.disabled = true;
+        }
+
+        function analyzeImage() {
+            const formData = new FormData();
+            formData.append('image', uploadedImage);
+            formData.append('detection_type', selectedType);
+
+            analyzeBtn.disabled = true;
+            spinner.style.display = 'inline-block';
+            analyzeBtn.innerHTML = '<span class="inline-block animate-spin mr-2">⏳</span>Analyzing...';
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    sessionStorage.setItem('analysisResults', JSON.stringify(data));
+                    window.location.href = '/results';
+                } else {
+                    alert('Error: ' + (data.error || 'Analysis failed'));
+                    resetAnalyzeButton();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while analyzing the image. Please try again.');
+                resetAnalyzeButton();
+            });
+        }
+
+        function resetAnalyzeButton() {
+            analyzeBtn.disabled = false;
+            spinner.style.display = 'none';
+            analyzeBtn.innerHTML = '<i class="bi bi-bar-chart-fill mr-2"></i>Analyze Image';
+        }
+    </script>
+</body>
+</html>
