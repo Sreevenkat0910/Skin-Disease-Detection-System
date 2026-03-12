@@ -8,10 +8,6 @@
 - **Accuracy**: **92% test accuracy** on 250 held‑out images  
 - **Interface**: Flask web app (login → upload image → view results + recommendations)
 
-If you remember only one line for viva:  
-> "A ResNet50‑based skin disease classifier (6 classes, 92% accuracy) deployed as a Flask web app with Gemini‑powered recommendations."
-
----
 
 ## 1. Overall Architecture
 
