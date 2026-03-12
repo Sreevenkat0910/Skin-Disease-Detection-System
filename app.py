@@ -16,7 +16,7 @@ app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 # Configure Gemini API
-genai.configure(api_key='AIzaSyALQl3IlQPXT_dD8k5kvBA9j3aXenmfDAg')
+genai.configure(api_key='api key')
 
 # Load both models
 skin_disease_model = load_model('models/best_model_finetuned.keras')
